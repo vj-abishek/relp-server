@@ -27,14 +27,7 @@ mongodb.connection
     .once('error', () => console.log('An error occured'));
 
 const server = app.listen(PORT, () => {
-    try {
-        const os = require('os');
-        const network = os.networkInterfaces();
-        console.log(`http://localhost:${PORT}`);
-        console.log(`http://${network.eth0[0].address}:${PORT}`);
-    } catch (err) {
-        console.log(`http://locahost:${PORT}`)
-    }
+    console.log(`http://localhost:${PORT}`);
 });
 
 require('./channel')(server);
