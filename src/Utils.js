@@ -1,21 +1,21 @@
 const notify = async (message) => {
-  const Token = require("./model/Token.model");
-  const axios = require("axios").default;
+  const Token = require('./model/Token.model');
+  const axios = require('axios').default;
   try {
     const token = await Token.find({ uid: message.to });
     console.log(token);
     if (token) {
       const res = await axios({
-        method: "POST",
-        url: "https://fcm.googleapis.com/fcm/send",
-        "Content-Type": "application/json",
+        method: 'POST',
+        url: 'https://fcm.googleapis.com/fcm/send',
+        'Content-Type': 'application/json',
         headers: {
           Authorization: `key=${process.env.key}`,
         },
         data: {
           to: token[0].token,
           data: {
-            title: "Hello world",
+            title: 'Hello world',
             body: message,
           },
         },

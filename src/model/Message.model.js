@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
@@ -8,5 +8,5 @@ const Message = new Schema({
   channel: String,
 });
 
-const message = mongoose.model("message", Message);
+const message = mongoose.model('message', Message);
 module.exports = message;
