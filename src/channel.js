@@ -7,10 +7,6 @@ module.exports = (server) => {
     const io = socket(server);
     const users = new Map();
 
-
-    // configuration for websocket instead of polling
-    io.set('transports', ['websocket']);
-
     io.on('connection', (socket) => {
         console.log('Made connection id:', socket.id);
 
