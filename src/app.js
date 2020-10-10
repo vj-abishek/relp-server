@@ -31,3 +31,5 @@ const server = app.listen(PORT, () => {
 });
 
 require('./channel')(server);
+
+module.exports = app;

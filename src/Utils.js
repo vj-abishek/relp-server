@@ -1,5 +1,6 @@
 
 const notify = async (message) => {
+    const Token = require('./model/Token.model');
     const axios = require('axios').default;
     try {
         const token = await Token.find({ uid: message.to });
