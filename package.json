@@ -7,10 +7,10 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "prettier": "prettier \"src/**/*.{js,json}\"",
-      "format": "npm run prettier -- --write",
-      "lint": "eslint src",
-      "lint:fix": "npm run lint -- --fix",
-      "validate": "npm run prettier -- --list-different && npm run lint"
+    "format": "npm run prettier -- --write",
+    "lint": "eslint src",
+    "lint:fix": "npm run lint -- --fix",
+    "validate": "npm run prettier -- --list-different && npm run lint"
   },
   "husky": {
     "hooks": {
@@ -19,8 +19,7 @@
   },
   "lint-staged": {
     "**/*.{js,ts}": [
-      "npm run format",
-      "npm run lint"
+      "npm run format"
     ]
   },
   "keywords": [],
