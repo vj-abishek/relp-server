@@ -140,7 +140,7 @@ module.exports = (server) => {
         }
       }
 
-      console.log('Disconnected user id:', socket.id);
+      console.log('Disconnected user id :', socket.id);
     });
   });
 };
