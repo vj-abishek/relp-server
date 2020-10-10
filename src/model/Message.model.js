@@ -1,12 +1,12 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
 const Message = new Schema({
-    to: String,
-    body: String,
-    channel: String,
+  to: String,
+  body: String,
+  channel: String,
 });
 
-const message = mongoose.model('message', Message);
+const message = mongoose.model("message", Message);
 module.exports = message;
