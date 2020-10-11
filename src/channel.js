@@ -118,6 +118,13 @@ module.exports = (server) => {
       }
     });
 
+    socket.on('created channel', ({ to }) => {
+      const user = UserSocketId(users, to);
+      if (user !== undefined) {
+        io.to(user.id).emit('created channel');
+      }
+    });
+
     // Handle Clean up
     socket.on('disconnect', async () => {
       const values = users.values();
