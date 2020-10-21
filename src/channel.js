@@ -20,7 +20,6 @@ module.exports = (server) => {
       users.set(u.uid, { id: socket.id, uid: u.uid });
 
       if (u) {
-        console.log(u);
         io.emit('user status', {
           uid: u.uid,
           LastSeen: Date.now(),
@@ -105,10 +104,10 @@ module.exports = (server) => {
       io.to(user.id).emit('backAnswer', { from, to, payload });
     });
 
-    socket.on('shareID', ({ shareID, finalTo }) => {
-      console.log(shareID, finalTo);
+    socket.on('shareID', ({ shareID, finalTo, channelID, ...rest }) => {
+      console.log(shareID, finalTo, rest);
       const user = UserSocketId(users, finalTo);
-      io.to(user.id).emit('shareID', shareID);
+      io.to(user.id).emit('shareID', { shareID, channelID, rest });
     });
 
     socket.on('current channel', (data) => {
