@@ -24,7 +24,7 @@ mongodb.connection
   .on('open', () => console.log('Successfully connected to the db'))
   .once('error', () => console.log('An error occured'));
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`http://localhost:${PORT}`);
 });
 
