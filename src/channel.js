@@ -48,14 +48,14 @@ module.exports = (server) => {
       // Search for messages in the database
 
       const message = await Message.find({ to: u.uid });
-      console.log(message);
+      // console.log(message);
       if (message) {
         io.to(socket.id).emit('new message', message);
       }
     });
 
     socket.on('send message', async (message) => {
-      console.log(message);
+      // console.log(message);
       // const user = UserSocketId(users, message.to);
       const user = await redis.hget(message.to, 'id');
       if (!user) {
@@ -98,7 +98,7 @@ module.exports = (server) => {
     });
 
     socket.on('offer', async ({ from, to, payload }) => {
-      console.log({ to, payload });
+      // console.log({ to, payload });
       // const user = UserSocketId(users, to);
       const user = await redis.hget(to, 'id');
 
@@ -106,7 +106,7 @@ module.exports = (server) => {
     });
 
     socket.on('answer', async ({ from, to, payload }) => {
-      console.log({ from, to, payload });
+      // console.log({ from, to, payload });
       // const user = UserSocketId(users, from);
       const user = await redis.hget(from, 'id');
 
@@ -114,7 +114,7 @@ module.exports = (server) => {
     });
 
     socket.on('shareID', async ({ shareID, finalTo, channelID, ...rest }) => {
-      console.log(shareID, finalTo, rest);
+      // console.log(shareID, finalTo, rest);
       // const user = UserSocketId(users, finalTo);
       const user = await redis.hget(finalTo, 'id');
 

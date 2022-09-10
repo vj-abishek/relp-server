@@ -3,8 +3,8 @@ const notify = async (message) => {
   const axios = require('axios').default;
   try {
     const token = await Token.find({ uid: message.to });
-    console.log(token);
-    if (token) {
+    // console.log(token);
+    if (token && token[0]?.token) {
       const res = await axios({
         method: 'POST',
         url: 'https://fcm.googleapis.com/fcm/send',
