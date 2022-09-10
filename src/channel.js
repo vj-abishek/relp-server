@@ -3,9 +3,10 @@ module.exports = (server) => {
   const Message = require('./model/Message.model');
   const User = require('./model/User.model');
   const Token = require('./model/Token.model');
-  const { notify, UserSocketId } = require('./Utils');
+  const { notify } = require('./Utils');
+  const redis = require('./redis');
   const io = socketIO(server);
-  const users = new Map();
+  // const users = new Map();
 
   io.on('connection', (socket) => {
     console.log('Made connection id:', socket.id);
@@ -17,7 +18,9 @@ module.exports = (server) => {
       socket.leave('anonymous');
       socket.join('authenticated');
 
-      users.set(u.uid, { id: socket.id, uid: u.uid });
+      redis.hmset(u.uid, { id: socket.id, uid: u.uid });
+      redis.hmset(socket.id, { id: socket.id, uid: u.uid });
+      // users.set(u.uid, { id: socket.id, uid: u.uid });
 
       if (u) {
         io.emit('user status', {
@@ -49,18 +52,18 @@ module.exports = (server) => {
       if (message) {
         io.to(socket.id).emit('new message', message);
       }
-      console.log(users);
     });
 
-    socket.on('send message', (message) => {
+    socket.on('send message', async (message) => {
       console.log(message);
-      const user = UserSocketId(users, message.to);
+      // const user = UserSocketId(users, message.to);
+      const user = await redis.hget(message.to, 'id');
       if (!user) {
         const res = new Message({ ...message });
         res.save().then(() => console.log('Saved Successfully'));
         notify(message);
       } else {
-        io.to(user.id).emit('recieve message', message);
+        io.to(user).emit('recieve message', message);
         notify(message);
       }
     });
@@ -85,66 +88,75 @@ module.exports = (server) => {
         .catch(console.error);
     });
 
-    socket.on('Typing Indicator', (status) => {
-      const user = UserSocketId(users, status.to);
+    socket.on('Typing Indicator', async (status) => {
+      // const user = UserSocketId(users, status.to);
+      const user = await redis.hget(status.to, 'id');
+
       if (user) {
-        io.to(user.id).emit('Typing Indicator', status);
+        io.to(user).emit('Typing Indicator', status);
       }
     });
 
-    socket.on('offer', ({ from, to, payload }) => {
+    socket.on('offer', async ({ from, to, payload }) => {
       console.log({ to, payload });
-      const user = UserSocketId(users, to);
-      io.to(user.id).emit('backOffer', { from, to, payload });
+      // const user = UserSocketId(users, to);
+      const user = await redis.hget(to, 'id');
+
+      io.to(user).emit('backOffer', { from, to, payload });
     });
 
-    socket.on('answer', ({ from, to, payload }) => {
+    socket.on('answer', async ({ from, to, payload }) => {
       console.log({ from, to, payload });
-      const user = UserSocketId(users, from);
-      io.to(user.id).emit('backAnswer', { from, to, payload });
+      // const user = UserSocketId(users, from);
+      const user = await redis.hget(from, 'id');
+
+      io.to(user).emit('backAnswer', { from, to, payload });
     });
 
-    socket.on('shareID', ({ shareID, finalTo, channelID, ...rest }) => {
+    socket.on('shareID', async ({ shareID, finalTo, channelID, ...rest }) => {
       console.log(shareID, finalTo, rest);
-      const user = UserSocketId(users, finalTo);
-      io.to(user.id).emit('shareID', { shareID, channelID, rest });
+      // const user = UserSocketId(users, finalTo);
+      const user = await redis.hget(finalTo, 'id');
+
+      io.to(user).emit('shareID', { shareID, channelID, rest });
     });
 
-    socket.on('current channel', (data) => {
-      const user = UserSocketId(users, data.to);
+    socket.on('current channel', async (data) => {
+      // const user = UserSocketId(users, data.to);
+      const user = await redis.hget(data.to, 'id');
+
       if (user !== undefined) {
-        io.to(user.id).emit('current channel', data);
+        io.to(user).emit('current channel', data);
       }
     });
 
-    socket.on('created channel', ({ to }) => {
-      const user = UserSocketId(users, to);
+    socket.on('created channel', async ({ to }) => {
+      // const user = UserSocketId(users, to);
+      const user = await redis.hget(to, 'id');
+
       if (user !== undefined) {
-        io.to(user.id).emit('created channel');
+        io.to(user).emit('created channel');
       }
     });
 
     // Handle Clean up
     socket.on('disconnect', async () => {
-      const values = users.values();
+      // remove the user from the map
+      const uid = await redis.hget(socket.id, 'uid');
+      redis.hdel(socket.id);
+      redis.hdel(uid);
 
-      for (const v of values) {
-        if (v.id === socket.id) {
-          users.delete(v.id);
-          io.emit('user status', {
-            LastSeen: Date.now(),
-            status: 'Offline',
-            uid: v.uid,
-          });
+      io.emit('user status', {
+        LastSeen: Date.now(),
+        status: 'Offline',
+        uid,
+      });
 
-          // Update the user status in the database
-          await User.where({ uid: v.uid }).updateOne({
-            LastSeen: Date.now(),
-            status: 'Offline',
-          });
-          return;
-        }
-      }
+      // Update the user status in the database
+      await User.where({ uid }).updateOne({
+        LastSeen: Date.now(),
+        status: 'Offline',
+      });
 
       console.log('Disconnected user id :', socket.id);
     });
