@@ -143,8 +143,8 @@ module.exports = (server) => {
     socket.on('disconnect', async () => {
       // remove the user from the map
       const uid = await redis.hget(socket.id, 'uid');
-      redis.hdel(socket.id);
-      redis.hdel(uid);
+      redis.del(socket.id);
+      redis.del(uid);
 
       io.emit('user status', {
         LastSeen: Date.now(),
