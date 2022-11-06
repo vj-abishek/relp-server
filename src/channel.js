@@ -55,7 +55,6 @@ module.exports = (server) => {
     });
 
     socket.on('send message', async (message) => {
-      // console.log(message);
       // const user = UserSocketId(users, message.to);
       const user = await redis.hget(message.to, 'id');
       if (!user) {
